@@ -60,6 +60,26 @@ pio run -t upload            # build and flash (auto-detects the port)
 - The first build of a platform version downloads the toolchain into
   `~/.platformio`; it takes a few minutes.
 
+## Rewiring
+
+Whatever firmware is in flash runs as soon as the board gets power. Code
+written for the old wiring can drive a pin against whatever the new wiring
+connects it to. So, for any wiring change:
+
+1. **Erase first:** run `pio run -t erase` from any project. With an empty flash, every
+   pin stays an input after reset and drives nothing.
+2. **Have the user unplug USB, rewire, then plug it back in.** Never ask for a
+   rewire while the board is powered.
+3. **Check the new wiring** against the pin rules and the strapping pins in
+   `hardware.md` (GPIO0, 2, 5, 12, 15) before flashing, then flash the
+   firmware for the new layout.
+4. **Update "Current wiring"** in `hardware.md`.
+
+For trivial changes (an LED with a resistor, a button to GND), unplugging
+alone is enough and step 1 can be skipped. Do the full procedure when a pin
+connects to another chip's output or a bus (I2C/SPI/UART), anything at 5 V, a
+relay or motor driver, or a strapping pin.
+
 ## Starting a new project
 
 1. `mkdir -p projects/<name>/src`
