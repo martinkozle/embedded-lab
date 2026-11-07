@@ -100,6 +100,7 @@ The rules:
 |---|---|---|---|
 | 0.96" OLED, 128×64, monochrome | 1 | I2C (pins GND, VCC, SCL, SDA) | SSD1306 at 0x3C (confirmed: the U8g2 SSD1306 driver shows a clean image). Runs from 3.3 V. |
 | Mechanical keyboard switch (MX-style, blue keycap) | 1 | 2 metal pins, a plain on/off switch | Pins connect when pressed; either way round. Does not sit in a breadboard (centre post); use female-to-male jumpers. |
+| Passive buzzer module (HW-508 / KY-006 style) | 1 | 3 pins: S, middle (unused), − | Passive piezo: needs a tone (PWM), plays any pitch. Driven straight from a GPIO. Full volume (50 % duty) is loud; ~3 % duty (8/255) is comfortable. |
 | Analog joystick module (KY-023 style) | 1 | 2× analog + 1 button (pins GND, +5V, VRX, VRY, SW) | Two 10 kΩ pots and a push switch to GND. Despite the label, power it from **3V3** so VRX/VRY stay within 0–3.3 V. SW needs a pull-up. |
 
 ## Current wiring
@@ -113,6 +114,7 @@ The rules:
 | Joystick SW | GPIO25 | Switch to GND. Use `INPUT_PULLUP`; pressed reads LOW. |
 | Joystick GND / +5V | outer rails (− / +) | The + rail is fed from **3V3**, not 5 V. |
 | Keyboard switch | GPIO26 → switch → GND | Not currently connected: the jumpers kept falling off. Worked 2026-11-07 with `INPUT_PULLUP` (pressed reads LOW). |
+| Buzzer | S → GPIO27, − → outer − rail | Middle pin unconnected. LEDC PWM. Confirmed 2026-11-07 with `stick-dodge`. |
 | OLED SDA / SCL | GPIO21 / GPIO22 | I2C, SSD1306 at 0x3C. |
 | OLED GND / VCC | outer rails (− / +) | 3.3 V. |
 | Power rails | 3V3 → outer + rail, GND → outer − rail | On the right edge of the right breadboard. |

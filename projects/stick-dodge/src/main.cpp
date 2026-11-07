@@ -4,10 +4,12 @@
 // over time; touching one ends the game. Stars are worth 10 points each, and
 // you also score 1 point per second survived. Press the stick to start.
 // The best score survives power-off (saved in flash with Preferences).
+// Sounds play on a passive buzzer: start, star, game over and new best.
 //
 // Wiring (see hardware.md):
 //   OLED  GND->GND  VCC->3V3  SCL->GPIO22  SDA->GPIO21
 //   Stick GND->GND  +5V->3V3  VRX->GPIO32  VRY->GPIO33  SW->GPIO25
+//   Buzzer (HW-508 passive)  S->GPIO27  -->GND  middle pin unconnected
 #include <Arduino.h>
 #include <Preferences.h>
 #include <U8g2lib.h>
@@ -18,6 +20,7 @@ constexpr int PIN_SCL = 22;
 constexpr int PIN_VRX = 32;
 constexpr int PIN_VRY = 33;
 constexpr int PIN_SW = 25;
+constexpr int PIN_BUZZER = 27;
 
 constexpr int W = 128;
 constexpr int H = 64;
@@ -29,6 +32,54 @@ constexpr int MAX_ROCKS = 10;
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C oled(U8G2_R0, U8X8_PIN_NONE);
 Preferences prefs;
+
+// --- Sound -----------------------------------------------------------------
+// A passive buzzer only makes a sound while we feed it a square wave, so a
+// tune is a list of {frequency, milliseconds} steps that loop() plays one by
+// one without blocking. Frequency 0 is a rest.
+struct Note {
+  uint16_t hz, ms;
+};
+const Note SND_START[] = {{523, 70}, {659, 70}, {784, 110}, {0, 0}};
+const Note SND_STAR[] = {{1319, 40}, {1760, 70}, {0, 0}};
+const Note SND_OVER[] = {{392, 120}, {330, 120}, {262, 120}, {196, 300}, {0, 0}};
+const Note SND_BEST[] = {{392, 120}, {330, 120}, {262, 160}, {0, 120},
+                         {523, 90}, {659, 90}, {784, 90}, {1047, 250}, {0, 0}};
+const Note SND_BOOT[] = {{880, 60}, {0, 40}, {1175, 90}, {0, 0}};
+
+// Volume: the share of each wave the pin is HIGH, out of 255. 128 (half) is
+// the loudest a piezo gets; smaller is quieter. Above ~40 it barely changes.
+constexpr uint32_t VOLUME = 8;
+
+const Note *tune = nullptr;  // the tune playing now, nullptr when silent
+uint32_t noteStart;
+
+void playNote(const Note &n) {
+  if (n.hz == 0) {
+    ledcWrite(PIN_BUZZER, 0);
+  } else {
+    ledcChangeFrequency(PIN_BUZZER, n.hz, 8);
+    ledcWrite(PIN_BUZZER, VOLUME);
+  }
+  noteStart = millis();
+}
+
+void play(const Note *t) {
+  tune = t;
+  playNote(*tune);
+}
+
+// Call every loop: moves to the next note when the current one is done.
+void updateSound() {
+  if (!tune || millis() - noteStart < tune->ms) return;
+  tune++;
+  if (tune->ms == 0) {  // {0, 0} marks the end
+    tune = nullptr;
+    ledcWrite(PIN_BUZZER, 0);
+    return;
+  }
+  playNote(*tune);
+}
 
 enum class State { Title, Play, Over };
 State state = State::Title;
@@ -84,6 +135,7 @@ void startGame() {
   shipY = H - 8;
   for (auto &r : rocks) r.alive = false;
   placeStar();
+  play(SND_START);
   bonus = 0;
   score = 0;
   frame = 0;
@@ -144,6 +196,7 @@ void updatePlay() {
         prefs.putInt("best", best);
       }
       Serial.printf("game over: score %d (best %d)\n", score, best);
+      play(newBest ? SND_BEST : SND_OVER);
       state = State::Over;
       return;
     }
@@ -154,6 +207,7 @@ void updatePlay() {
   if (sx * sx + sy * sy < 5 * 5) {
     bonus += 10;
     placeStar();
+    play(SND_STAR);
   }
 
   score = (int)seconds + bonus;
@@ -228,9 +282,13 @@ void setup() {
   Wire.begin(PIN_SDA, PIN_SCL);
   oled.begin();
   randomSeed(esp_random());
+
+  ledcAttach(PIN_BUZZER, 2000, 8);
+  play(SND_BOOT);
 }
 
 void loop() {
+  updateSound();
   static uint32_t lastFrame = 0;
   uint32_t now = millis();
   if (now - lastFrame < FRAME_MS) return;
