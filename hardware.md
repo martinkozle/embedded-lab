@@ -102,8 +102,10 @@ The rules:
 
 ## Current wiring
 
-Nothing wired besides the on-board LED. The two jumper wires in the board
-photo are not part of any documented wiring.
+| What | ESP32 pin | Notes |
+|---|---|---|
+| On-board LED | GPIO2 | Built into the board. |
+| External LED with series resistor | GPIO19 → LED → GND | The grey/red and yellow jumpers in the board photo. Confirmed 2026-11-07 with `blink-sos` env `esp32dev-ext-led`. HIGH turns it on. |
 
 ## References
 
