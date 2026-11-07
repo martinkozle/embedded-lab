@@ -2,7 +2,7 @@
 // Hold the stick button down for a moment to come back to this menu.
 #include "arcade.h"
 
-const Game *const GAMES[] = {&DODGE, &SNAKE, &MAZE, &CRYPT, &BRICKS};
+const Game *const GAMES[] = {&DODGE, &SNAKE, &MAZE, &CRYPT, &BRICKS, &STACKER};
 constexpr int NUM_GAMES = sizeof GAMES / sizeof GAMES[0];
 
 const Game *current = nullptr;  // nullptr while the menu is showing

@@ -66,3 +66,4 @@ extern const Game SNAKE;
 extern const Game MAZE;
 extern const Game CRYPT;
 extern const Game BRICKS;
+extern const Game STACKER;
