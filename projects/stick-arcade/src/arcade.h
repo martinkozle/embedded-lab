@@ -64,3 +64,5 @@ struct Game {
 extern const Game DODGE;
 extern const Game SNAKE;
 extern const Game MAZE;
+extern const Game CRYPT;
+extern const Game BRICKS;

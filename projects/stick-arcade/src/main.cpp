@@ -2,7 +2,7 @@
 // Hold the stick button down for a moment to come back to this menu.
 #include "arcade.h"
 
-const Game *const GAMES[] = {&DODGE, &SNAKE, &MAZE};
+const Game *const GAMES[] = {&DODGE, &SNAKE, &MAZE, &CRYPT, &BRICKS};
 constexpr int NUM_GAMES = sizeof GAMES / sizeof GAMES[0];
 
 const Game *current = nullptr;  // nullptr while the menu is showing
@@ -30,14 +30,21 @@ void updateMenu(const Input &in) {
   oled.setFont(u8g2_font_9x15B_tf);
   drawCentered(13, "STICK ARCADE");
   oled.setFont(u8g2_font_6x10_tf);
-  for (int i = 0; i < NUM_GAMES; i++) {
-    int y = 27 + i * 11;
+  // Show 4 games at a time; the list scrolls to keep the choice visible.
+  constexpr int VISIBLE = 4;
+  static int first = 0;
+  if (choice < first) first = choice;
+  if (choice >= first + VISIBLE) first = choice - VISIBLE + 1;
+  for (int i = first; i < min(NUM_GAMES, first + VISIBLE); i++) {
+    int y = 25 + (i - first) * 10;
     if (i == choice) oled.drawStr(8, y, ">");
     oled.drawStr(20, y, GAMES[i]->name);
     char hi[16];
     snprintf(hi, sizeof hi, "hi %d", bests[i]);
     oled.drawStr(W - 8 - oled.getStrWidth(hi), y, hi);
   }
+  if (first > 0) oled.drawTriangle(W - 3, 16, W - 5, 18, W - 1, 18);  // more above
+  if (first + VISIBLE < NUM_GAMES) oled.drawTriangle(W - 3, 57, W - 5, 55, W - 1, 55);  // more below
   oled.setFont(u8g2_font_5x8_tf);
   drawCentered(63, "up/down, press to play");
   oled.sendBuffer();
