@@ -3,6 +3,7 @@
 // Wiring (see hardware.md):
 //   OLED  GND->GND  VCC->3V3  SCL->GPIO22  SDA->GPIO21
 //   Stick GND->GND  +5V->3V3  VRX->GPIO32  VRY->GPIO33  SW->GPIO25
+//   Key   one pin->GPIO26, other pin->GND (mechanical keyboard switch)
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <Wire.h>
@@ -12,6 +13,7 @@ constexpr int PIN_SCL = 22;
 constexpr int PIN_VRX = 32;  // ADC1
 constexpr int PIN_VRY = 33;  // ADC1
 constexpr int PIN_SW = 25;   // pressed = LOW, needs the internal pull-up
+constexpr int PIN_KEY = 26;  // keyboard switch, pressed = LOW
 
 #ifdef OLED_SH1106
 U8G2_SH1106_128X64_NONAME_F_HW_I2C oled(U8G2_R0, U8X8_PIN_NONE);
@@ -38,6 +40,7 @@ void setup() {
   Serial.println("\njoystick-oled test starting");
 
   pinMode(PIN_SW, INPUT_PULLUP);
+  pinMode(PIN_KEY, INPUT_PULLUP);
   analogReadResolution(12);  // 0..4095
 
   Wire.begin(PIN_SDA, PIN_SCL);
@@ -57,6 +60,12 @@ void loop() {
   int x = 4095 - analogRead(PIN_VRX);  // inverted so stick-right moves the dot right
   int y = 4095 - analogRead(PIN_VRY);  // inverted so stick-up moves the dot up
   bool pressed = digitalRead(PIN_SW) == LOW;
+  // Sampling every 33 ms is slow enough to ride out switch bounce.
+  static bool keyWasDown = false;
+  static int keyPresses = 0;
+  bool keyDown = digitalRead(PIN_KEY) == LOW;
+  if (keyDown && !keyWasDown) keyPresses++;
+  keyWasDown = keyDown;
 
   oled.clearBuffer();
   oled.drawFrame(0, 0, 64, 64);
@@ -70,6 +79,8 @@ void loop() {
   oled.printf("Y %4d", y);
   oled.setCursor(70, 42);
   oled.print(pressed ? "SW down" : "SW up");
+  oled.setCursor(70, 56);
+  oled.printf("%s %d", keyDown ? "KEY" : "key", keyPresses);
   oled.sendBuffer();
 
   static int minX = 4095, maxX = 0, minY = 4095, maxY = 0;
@@ -78,7 +89,8 @@ void loop() {
 
   if (now - lastPrint >= 200) {
     lastPrint = now;
-    Serial.printf("x=%4d y=%4d sw=%s  | seen x %d..%d  y %d..%d\n", x, y,
-                  pressed ? "DOWN" : "up", minX, maxX, minY, maxY);
+    Serial.printf("x=%4d y=%4d sw=%s key=%s presses=%d  | seen x %d..%d  y %d..%d\n",
+                  x, y, pressed ? "DOWN" : "up", keyDown ? "DOWN" : "up",
+                  keyPresses, minX, maxX, minY, maxY);
   }
 }
