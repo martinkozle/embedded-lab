@@ -9,8 +9,11 @@ constexpr int PIN_VRX = 32;  // ADC1
 constexpr int PIN_VRY = 33;  // ADC1
 constexpr int PIN_SW = 25;   // pressed = LOW, needs the internal pull-up
 constexpr int PIN_BUZZER = 27;
+constexpr int PIN_BTN = 26;  // button module, pressed = LOW
 
-constexpr int DEADZONE = 250;         // ADC counts around the resting centre
+// ADC counts around the resting centre that count as "not touched". This
+// stick doesn't spring back to exactly the same spot, so it's generous.
+constexpr int DEADZONE = 450;
 constexpr uint32_t HOLD_MS = 700;     // how long a press counts as "hold"
 
 // Volume: the share of each wave the pin is HIGH, out of 255. 128 (half) is
@@ -30,6 +33,7 @@ const Note SND_BEST[] = {{392, 120}, {330, 120}, {262, 160}, {0, 120},
                          {523, 90}, {659, 90}, {784, 90}, {1047, 250}, {0, 0}};
 const Note SND_MOVE[] = {{1047, 15}, {0, 0}};
 const Note SND_CLEAR[] = {{784, 80}, {988, 80}, {1175, 80}, {1568, 220}, {0, 0}};
+const Note SND_DASH[] = {{600, 25}, {900, 25}, {1300, 40}, {0, 0}};
 const Note SND_BOOT[] = {{880, 60}, {0, 40}, {1175, 90}, {0, 0}};
 
 static const Note *tune = nullptr;  // the tune playing now, nullptr when silent
@@ -77,8 +81,15 @@ static float axis(int raw, int center) {
 
 Input readInput() {
   Input in{};
-  in.x = axis(readX(), centerX);
-  in.y = axis(readY(), centerY);
+  int rawX = readX(), rawY = readY();
+  in.x = axis(rawX, centerX);
+  in.y = axis(rawY, centerY);
+  static uint32_t lastLog = 0;  // shows drift on Serial, once a second
+  if (millis() - lastLog >= 1000) {
+    lastLog = millis();
+    Serial.printf("stick raw x=%d y=%d (centre %d %d) -> %.2f %.2f\n", rawX, rawY,
+                  centerX, centerY, in.x, in.y);
+  }
 
   // A flick fires once when the stick goes past 60 %, and re-arms only after
   // it comes back under 30 %, so holding it doesn't repeat.
@@ -108,6 +119,12 @@ Input readInput() {
   }
   if (!down && wasDown && !holdFired) in.press = true;
   wasDown = down;
+
+  static bool aWasDown = false;
+  in.aHeld = digitalRead(PIN_BTN) == LOW;
+  in.a = in.aHeld && !aWasDown;
+  aWasDown = in.aHeld;
+  if (in.a) in.press = true;
   return in;
 }
 
@@ -151,6 +168,7 @@ void drawGameOver(int score, int best, bool newBest) {
 // --- Setup ---------------------------------------------------------------------
 void arcadeBegin() {
   pinMode(PIN_SW, INPUT_PULLUP);
+  pinMode(PIN_BTN, INPUT_PULLUP);
   analogReadResolution(12);
 
   // Measure where the stick rests. Don't touch it during the first moment.

@@ -1,6 +1,7 @@
 // Dodge: steer the ship anywhere on the screen. Rocks fall from the top and
 // get faster over time; touching one ends the round. Stars are worth 10
 // points each, and you also score 1 point per second survived.
+// Button A dashes: a quick burst of speed, ready again after 2 seconds.
 #include "arcade.h"
 
 namespace {
@@ -10,6 +11,9 @@ constexpr const char *NS = "stick-dodge";
 constexpr float SHIP_SPEED = 3.0f;  // pixels per frame at full tilt
 constexpr float SHIP_R = 2.5f;      // collision radius
 constexpr int MAX_ROCKS = 10;
+constexpr uint32_t DASH_MS = 250;       // how long a dash lasts
+constexpr uint32_t DASH_COOLDOWN = 2000;  // from one dash to the next
+constexpr float DASH_BOOST = 3.0f;      // speed multiplier while dashing
 
 struct Rock {
   bool alive;
@@ -18,7 +22,7 @@ struct Rock {
 Rock rocks[MAX_ROCKS];
 float starX, starY;
 float shipX, shipY;
-uint32_t playStart, lastSpawn;
+uint32_t playStart, lastSpawn, dashAt;
 int bonus, score, best;
 bool over, newBest;
 
@@ -37,6 +41,7 @@ void start() {
   best = loadBest(NS);
   playStart = millis();
   lastSpawn = playStart;
+  dashAt = playStart - DASH_COOLDOWN;  // ready right away
   over = false;
   newBest = false;
   play(SND_START);
@@ -63,8 +68,14 @@ void update(const Input &in) {
   uint32_t now = millis();
   float seconds = (now - playStart) / 1000.0f;
 
-  shipX = constrain(shipX + in.x * SHIP_SPEED, 3.0f, W - 4.0f);
-  shipY = constrain(shipY + in.y * SHIP_SPEED, 12.0f, H - 4.0f);
+  // Button A: a short burst of speed in the direction you're steering.
+  if (in.a && now - dashAt >= DASH_COOLDOWN && (in.x != 0 || in.y != 0)) {
+    dashAt = now;
+    play(SND_DASH);
+  }
+  float speed = SHIP_SPEED * (now - dashAt < DASH_MS ? DASH_BOOST : 1.0f);
+  shipX = constrain(shipX + curve(in.x) * speed, 3.0f, W - 4.0f);
+  shipY = constrain(shipY + curve(in.y) * speed, 12.0f, H - 4.0f);
 
   // Spawn rocks faster and faster: every 900 ms at the start, 250 ms at best.
   uint32_t spawnEvery = max(250.0f, 900.0f - seconds * 15.0f);
@@ -109,6 +120,10 @@ void update(const Input &in) {
   oled.setCursor(W - 6 * 6, 7);
   oled.printf("hi %d", best);
   oled.drawHLine(0, 9, W);
+  // Dash meter in the middle of the top bar: fills up, full = ready.
+  uint32_t charged = min<uint32_t>(now - dashAt, DASH_COOLDOWN);
+  oled.drawFrame(W / 2 - 12, 2, 24, 5);
+  oled.drawBox(W / 2 - 12, 2, 24 * charged / DASH_COOLDOWN, 5);
   for (auto &r : rocks)
     if (r.alive) oled.drawDisc(r.x, r.y, r.r);
   if ((frame / 3) % 4 != 0) {  // blinking plus sign

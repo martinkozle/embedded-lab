@@ -2,8 +2,8 @@
 // (the striped wall) before the clock runs out. Every exit gives you more
 // time and a bigger maze. Score = mazes cleared.
 //
-// Controls: stick forward/back walks, left/right turns. A short press shows
-// the map for 2 seconds but costs 3 seconds of time.
+// Controls: stick forward/back walks, left/right turns. Button A (or a short
+// stick press) shows the map for 2 seconds but costs 3 seconds of time.
 //
 // The 3D view is a raycaster: for each of the 128 screen columns we cast a
 // ray from the player across the tile grid until it hits a wall. The nearer
@@ -159,7 +159,7 @@ bool free_(float x, float y, bool &door) {
 
 void move(const Input &in) {
   // Turn. Rotating the direction and the camera plane together.
-  float turn = in.x * TURN_SPEED;
+  float turn = curve(in.x) * TURN_SPEED;
   if (turn != 0) {
     float c = cosf(turn), s = sinf(turn);
     float d = dirX;
@@ -172,7 +172,7 @@ void move(const Input &in) {
 
   // Walk. Stick up is negative y. Try each axis on its own so you slide
   // along walls instead of sticking to them.
-  float step = -in.y * MOVE_SPEED;
+  float step = -curve(in.y) * MOVE_SPEED;
   if (step == 0) return;
   bool door = false;
   float nx = px + dirX * step, ny = py + dirY * step;

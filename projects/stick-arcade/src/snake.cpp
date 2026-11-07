@@ -1,5 +1,6 @@
 // Snake: tilt the stick to turn. Eat the dots to grow and score; each one
 // also makes the snake a little faster. Hitting a wall or yourself ends it.
+// Hold button A to go twice as fast: food eaten that way is worth 2 points.
 #include "arcade.h"
 
 namespace {
@@ -18,7 +19,8 @@ int dx, dy;          // direction of the last step
 int wantX, wantY;    // direction for the next step, from the stick
 int foodX, foodY;
 uint32_t lastStep;
-int score, best;
+int score, eaten, best;
+bool boosting;  // button A held: double speed, double points
 bool over, newBest;
 
 bool onSnake(int x, int y) {
@@ -36,7 +38,10 @@ void placeFood() {
   } while (onSnake(foodX, foodY));
 }
 
-uint32_t stepMs() { return max(70, 160 - score * 4); }
+uint32_t stepMs() {
+  uint32_t ms = max(70, 160 - eaten * 4);
+  return boosting ? ms / 2 : ms;
+}
 
 void start() {
   len = 3;
@@ -49,6 +54,7 @@ void start() {
   dy = wantY = 0;
   placeFood();
   score = 0;
+  eaten = 0;
   best = loadBest(NS);
   lastStep = millis();
   over = false;
@@ -87,7 +93,8 @@ void step() {
   by[head] = ny;
   len++;
   if (eating) {  // the tail stayed, so the snake is one longer
-    score++;
+    eaten++;
+    score += boosting ? 2 : 1;
     play(SND_COIN);
     if (len >= MAX_LEN) {
       endRound();  // the board is full: nothing left to eat
@@ -116,6 +123,7 @@ void update(const Input &in) {
     }
   }
 
+  boosting = in.aHeld;
   uint32_t now = millis();
   if (now - lastStep >= stepMs()) {
     lastStep = now;
