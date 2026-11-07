@@ -12,7 +12,7 @@
 // checker, pyramid, columns) is picked at random, then filled left-to-right
 // and mirrored so the layout is symmetric. Later levels get more rows, more
 // tough bricks, steel, and a faster ball.
-#include "arcade.h"
+#include "os.h"
 
 namespace {
 

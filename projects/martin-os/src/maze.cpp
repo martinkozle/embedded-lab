@@ -10,7 +10,7 @@
 // the wall, the taller the column we draw. Walls facing two directions get
 // two different dot patterns so corners stand out, and far walls are drawn
 // as outlines only, which reads as depth on a black-and-white screen.
-#include "arcade.h"
+#include "os.h"
 
 namespace {
 

@@ -1,4 +1,5 @@
-// Shared hardware and helpers for the Stick Arcade games.
+// Martin OS core: the screen, input, sound and saved scores that every app
+// (the wear counter and the games) shares.
 //
 // Wiring (see hardware.md):
 //   OLED   GND->GND  VCC->3V3  SCL->GPIO22  SDA->GPIO21
@@ -24,12 +25,13 @@ struct Input {
   float x, y;                     // stick, -1..1 each, 0 inside the dead zone
   bool up, down, left, right;     // true on the frame the stick is flicked
   bool press;                     // "select": a short stick press, or button A
+  bool stickPress;                // a short stick press only
   bool a;                         // button A pressed this frame
   bool aHeld;                     // button A is down
   bool hold;                      // stick button held down for 0.7 s (once)
 };
 
-void arcadeBegin();     // call once from setup()
+void osBegin();         // call once from setup()
 Input readInput();      // call once per frame
 void updateSound();     // call every loop()
 
@@ -45,25 +47,36 @@ void play(const Note *tune);
 extern const Note SND_START[], SND_COIN[], SND_OVER[], SND_BEST[],
     SND_MOVE[], SND_BOOT[], SND_CLEAR[], SND_DASH[];
 
+// Draws text centred across the screen, with its baseline at y.
+void drawCentered(int y, const char *text);
+
 // Best scores live in flash (NVS), one namespace per game.
 int loadBest(const char *ns);
 void saveBest(const char *ns, int best);
 
-void drawCentered(int y, const char *text);
-
 // Shared game-over screen: score, best, and how to go on.
 void drawGameOver(int score, int best, bool newBest);
 
-// Every game provides these.
+// Every app provides these. The home screen lists them; holding the stick
+// button in any app goes back home.
 struct Game {
   const char *name;
-  const char *prefsNs;          // where its best score is saved
+  const char *prefsNs;          // where its best score is saved, nullptr if none
   void (*start)();              // reset and begin a new round
   void (*update)(const Input &);  // one frame: move, then draw
 };
+extern const Game WEAR;
 extern const Game DODGE;
 extern const Game SNAKE;
 extern const Game MAZE;
 extern const Game CRYPT;
 extern const Game BRICKS;
 extern const Game STACKER;
+extern const Game TANKS;
+extern const Game TUNNEL;
+extern const Game MANDEL;
+extern const Game JULIA;
+extern const Game PLASMA;
+extern const Game SOLIDS;
+extern const Game CHAOS;
+extern const Game LIFE;

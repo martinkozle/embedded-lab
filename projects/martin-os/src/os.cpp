@@ -1,4 +1,4 @@
-#include "arcade.h"
+#include "os.h"
 
 #include <Preferences.h>
 #include <Wire.h>
@@ -117,7 +117,7 @@ Input readInput() {
     in.hold = true;
     holdFired = true;
   }
-  if (!down && wasDown && !holdFired) in.press = true;
+  if (!down && wasDown && !holdFired) in.press = in.stickPress = true;
   wasDown = down;
 
   static bool aWasDown = false;
@@ -161,12 +161,12 @@ void drawGameOver(int score, int best, bool newBest) {
   snprintf(line, sizeof line, newBest ? "NEW BEST!" : "best %d", best);
   drawCentered(40, line);
   if ((frame / 12) % 2 == 0) drawCentered(53, "press: play again");
-  drawCentered(63, "hold: menu");
+  drawCentered(63, "hold: home");
   oled.sendBuffer();
 }
 
 // --- Setup ---------------------------------------------------------------------
-void arcadeBegin() {
+void osBegin() {
   pinMode(PIN_SW, INPUT_PULLUP);
   pinMode(PIN_BTN, INPUT_PULLUP);
   analogReadResolution(12);

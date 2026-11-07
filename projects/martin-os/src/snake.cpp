@@ -1,7 +1,7 @@
 // Snake: tilt the stick to turn. Eat the dots to grow and score; each one
 // also makes the snake a little faster. Hitting a wall or yourself ends it.
 // Hold button A to go twice as fast: food eaten that way is worth 2 points.
-#include "arcade.h"
+#include "os.h"
 
 namespace {
 

@@ -2,7 +2,7 @@
 // get faster over time; touching one ends the round. Stars are worth 10
 // points each, and you also score 1 point per second survived.
 // Button A dashes: a quick burst of speed, ready again after 2 seconds.
-#include "arcade.h"
+#include "os.h"
 
 namespace {
 

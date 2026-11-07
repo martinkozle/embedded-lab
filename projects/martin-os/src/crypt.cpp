@@ -22,7 +22,7 @@
 // texture, a depth buffer (wall distance per column, to hide sprites behind
 // walls) and sprites: 16x16 one-bit pictures scaled by distance, with a black
 // outline so they stand out against the bricks.
-#include "arcade.h"
+#include "os.h"
 
 namespace {
 

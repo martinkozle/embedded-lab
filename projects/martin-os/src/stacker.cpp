@@ -10,7 +10,7 @@
 //   stick press        put the piece in the hold box / swap it back
 // Points for rows cleared at once: 1 = 100, 2 = 300, 3 = 500, 4 = 800,
 // times the level.
-#include "arcade.h"
+#include "os.h"
 
 namespace {
 
