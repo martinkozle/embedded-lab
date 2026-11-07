@@ -114,7 +114,7 @@ The rules:
 | Joystick SW | GPIO25 | Switch to GND. Use `INPUT_PULLUP`; pressed reads LOW. |
 | Joystick GND / +5V | outer rails (− / +) | The + rail is fed from **3V3**, not 5 V. |
 | Keyboard switch | GPIO26 → switch → GND | Not currently connected: the jumpers kept falling off. Worked 2026-11-07 with `INPUT_PULLUP` (pressed reads LOW). |
-| Buzzer | S → GPIO27, − → outer − rail | Middle pin unconnected. LEDC PWM. Confirmed 2026-11-07 with `stick-dodge`. |
+| Buzzer | S → GPIO27, − → outer − rail | Middle pin unconnected. LEDC PWM. Confirmed 2026-11-07 with `stick-dodge` (now `stick-arcade`). |
 | OLED SDA / SCL | GPIO21 / GPIO22 | I2C, SSD1306 at 0x3C. |
 | OLED GND / VCC | outer rails (− / +) | 3.3 V. |
 | Power rails | 3V3 → outer + rail, GND → outer − rail | On the right edge of the right breadboard. |
