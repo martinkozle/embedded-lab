@@ -19,8 +19,32 @@ Read with `esptool flash-id` and `espefuse summary` (esptool v5.4.0, from
 - PSRAM: none (D0WD has no in-package PSRAM). That leaves about 320 KB of usable SRAM.
 - eFuses: no flash encryption, no secure boot, no custom MAC. ADC Vref is
   calibrated in eFuse (1135 mV).
-- Pin count and silkscreen layout (30-pin DOIT DevKit V1 style or 38-pin)
-  have not been confirmed yet.
+
+### ESP32 dev board: physical layout
+
+![ESP32 dev board, top view, USB on the right](docs/esp32-devboard.jpg)
+
+- **30-pin "DOIT ESP32 DevKit V1" style clone**, with 15 pins per side.
+  - Module: ESP-WROOM-32.
+  - USB: CH9102X USB-serial chip, micro-USB connector.
+  - Buttons: BOOT (GPIO0) and EN (reset).
+  - Power: AMS1117 3.3 V regulator.
+- **Silkscreen labels are GPIO numbers:** "D4" is GPIO4. The exceptions:
+
+  | Label | GPIO | Note |
+  |---|---|---|
+  | TXD / RXD | 1 / 3 | USB serial, leave free |
+  | TX2 / RX2 | 17 / 16 | UART2 by default, usable as normal GPIOs |
+  | VP / VN | 36 / 39 | input-only |
+  | EN | – | reset, not a GPIO |
+  | VIN | – | 5 V from USB, or an external 5 V supply in |
+  | 3V3 | – | 3.3 V regulator output |
+
+- **Pin order**, with the board seen from the top, USB on the right and the module on the left:
+  - Top row: D23, D22, TXD, RXD, D21, D19, D18, D5, TX2, RX2, D4, D2, D15, GND, 3V3.
+  - Bottom row: EN, VP, VN, D34, D35, D32, D33, D25, D26, D27, D14, D12, D13, GND, VIN.
+- **Not brought out to pins:** GPIO0 (the BOOT button only) and GPIO6–11 (flash).
+  The ADC1 pins on this board are GPIO32–36 and 39.
 
 ## ESP32 pin rules (classic ESP32, any dev board)
 
@@ -78,7 +102,8 @@ The rules:
 
 ## Current wiring
 
-Nothing wired besides the on-board LED.
+Nothing wired besides the on-board LED. The two jumper wires in the board
+photo are not part of any documented wiring.
 
 ## References
 
