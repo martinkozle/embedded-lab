@@ -13,6 +13,17 @@ written by agents. Every project is a self-contained PlatformIO project.
   wiring changes or new hardware arrives.
 - `scripts/serial-log.py`: reads serial output for a fixed time (see below).
 
+## Agent skills
+
+Project skills live in `.claude/skills/` and are managed with the `skills` CLI.
+`skills-lock.json` records where each one came from, with a content hash.
+
+- Add: `npx skills add <owner/repo> -s <skill> -a claude-code -y`. Read the
+  SKILL.md first, and reject skills that conflict with this file (unpinned
+  versions, `pip install`, `pio device monitor`).
+- Restore from the lock file: `npx skills experimental_install`.
+- Remove: `npx skills remove -s <skill> -y` (this keeps the lock file in sync).
+
 ## Toolchain
 
 PlatformIO Core, installed with `uv tool install platformio` (`pio` on PATH).

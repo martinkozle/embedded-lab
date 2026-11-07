@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "non-blocking-patterns": {
+      "source": "wedsamuel1230/embedded-engineering-skills",
+      "sourceType": "github",
+      "skillPath": "skills/non-blocking-patterns/SKILL.md",
+      "computedHash": "6186c9993b2d007e5c6ae6475efd32315d135cbcf8b6ef9293310cf55b56a947"
+    },
+    "wiring-safety-check": {
+      "source": "wedsamuel1230/embedded-engineering-skills",
+      "sourceType": "github",
+      "skillPath": "skills/wiring-safety-check/SKILL.md",
+      "computedHash": "0282f1d862d103afafe126d8d0e18c33244b500912407ebbee2776a2fa53117f"
+    }
+  }
+}
