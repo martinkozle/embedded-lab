@@ -52,6 +52,10 @@ code layout.
 
 ## Hardware
 
+<p align="center">
+  <img src="docs/media/build.jpg" width="600" alt="The build: ESP32, OLED showing the Martin OS boot screen, thumb joystick, button and buzzer on a breadboard">
+</p>
+
 | Part | Pins |
 |---|---|
 | ESP32 DevKit V1 clone (ESP-WROOM-32, 30 pins) | |
