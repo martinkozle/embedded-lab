@@ -56,7 +56,7 @@ code layout.
   <img src="docs/media/build.jpg" width="600" alt="The build: ESP32, OLED showing the Martin OS boot screen, thumb joystick, button and buzzer on a breadboard">
 </p>
 
-Playing it on the real board (the repo is open on the laptop behind it):
+Playing it on the real board:
 
 https://github.com/user-attachments/assets/57fbac8a-5644-4b75-b347-f76c22c51a07
 
