@@ -85,7 +85,7 @@ Input readInput() {
   in.x = axis(rawX, centerX);
   in.y = axis(rawY, centerY);
   static uint32_t lastLog = 0;  // shows drift on Serial, once a second
-  if (millis() - lastLog >= 1000) {
+  if (!capturing() && millis() - lastLog >= 1000) {
     lastLog = millis();
     Serial.printf("stick raw x=%d y=%d (centre %d %d) -> %.2f %.2f\n", rawX, rawY,
                   centerX, centerY, in.x, in.y);
@@ -126,6 +126,51 @@ Input readInput() {
   aWasDown = in.aHeld;
   if (in.a) in.press = true;
   return in;
+}
+
+// --- Screen capture -------------------------------------------------------------
+// Frame packet: 0xA5 0x5A, millis (4 bytes, little-endian), the 1024-byte
+// screen buffer, and an XOR of the buffer bytes as a check. Text lines never
+// contain 0xA5, so the host can find frames in between them.
+static bool capOn = false;
+
+bool capturing() { return capOn; }
+
+void serviceCapture() {
+  static char line[16];
+  static int len = 0;
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c != '\n' && c != '\r') {
+      if (len < (int)sizeof line - 1) line[len++] = c;
+      continue;
+    }
+    line[len] = 0;
+    len = 0;
+    if (!strncmp(line, "CAP", 3) && !capOn) {  // "CAP" or "CAP <baud>"
+      long baud = atol(line + 3);
+      Serial.flush();
+      if (baud > 0) Serial.updateBaudRate(baud);
+      capOn = true;
+    } else if (!strcmp(line, "END") && capOn) {
+      Serial.flush();
+      Serial.updateBaudRate(115200);
+      capOn = false;
+    }
+  }
+}
+
+void captureFrame() {
+  if (!capOn) return;
+  uint8_t *buf = oled.getBufferPtr();
+  uint32_t t = millis();
+  uint8_t head[6] = {0xA5, 0x5A, uint8_t(t), uint8_t(t >> 8), uint8_t(t >> 16), uint8_t(t >> 24)};
+  uint8_t check = 0;
+  for (int i = 0; i < 1024; i++) check ^= buf[i];
+  if (Serial.availableForWrite() < 1031) return;  // host too slow: skip a frame
+  Serial.write(head, sizeof head);
+  Serial.write(buf, 1024);
+  Serial.write(check);
 }
 
 // --- Best scores ------------------------------------------------------------

@@ -1,4 +1,4 @@
-# Embedded playground
+# embedded-lab
 
 A monorepo of small toy projects for ESP32 and Arduino-type boards, mostly
 written by agents. Every project is a self-contained PlatformIO project.
@@ -12,6 +12,8 @@ written by agents. Every project is a self-contained PlatformIO project.
   **Read it before writing pin numbers or choosing a board.** Update it when
   wiring changes or new hardware arrives.
 - `scripts/serial-log.py`: reads serial output for a fixed time (see below).
+- `scripts/oled-capture.py`: records the OLED of a board running Martin OS to
+  PNG or GIF. The GIFs in `docs/media/` (shown in `README.md`) come from it.
 
 ## Agent skills
 
@@ -87,3 +89,13 @@ relay or motor driver, or a strapping pin.
    above. Board IDs come from `hardware.md` or `pio boards <filter>`.
 3. Print something on `Serial` at 115200 baud in `setup()` so the loop above
    can confirm the firmware is running.
+
+## Commits
+
+- Commit only when the user asks. The repo is public on GitHub as
+  `martinkozle/embedded-lab`.
+- Author and committer: `Martin Popovski <martinkozle@yahoo.com>`, never a
+  work address. Commits are GPG-signed (`commit.gpgsign` and
+  `user.signingkey` are set in this repo's git config). Before pushing,
+  check with `git log --format='%h %ae %G?'`.
+- Never commit photos without stripping their metadata (EXIF, GPS) first.

@@ -102,6 +102,13 @@ draws the whole frame between `oled.clearBuffer()` and `oled.sendBuffer()`.
 For steering, use `curve(in.x)`: it squares the stick value, which hides
 the joystick's drift.
 
+## Screen capture
+
+`scripts/oled-capture.py` (repo root) records the screen to PNG or GIF. It
+sends `CAP 460800`; the board switches to that baud rate and streams every
+frame (`0xA5 0x5A`, millis, the 1024-byte buffer, an XOR check) until `END`.
+The screen doesn't sleep while recording.
+
 ## Serial output
 
 - At boot: the stick centre.

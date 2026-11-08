@@ -261,6 +261,7 @@ void drawSplash(uint32_t t) {
 }
 
 void setup() {
+  Serial.setTxBufferSize(4096);  // frames for screen capture go out in the background
   Serial.begin(115200);
   delay(200);
   Serial.println("\nmartin-os starting");
@@ -271,6 +272,7 @@ void setup() {
 
 void loop() {
   updateSound();
+  serviceCapture();
   static uint32_t lastFrame = 0;
   uint32_t now = millis();
   if (now - lastFrame < FRAME_MS) return;
@@ -280,12 +282,13 @@ void loop() {
   Input in = readInput();
 
   // Screen sleep. The touch that wakes the screen does nothing else: input
-  // is ignored until everything is let go. Demos keep the screen on.
+  // is ignored until everything is let go. Demos and screen capture keep the
+  // screen on.
   constexpr uint32_t SLEEP_MS = 60000;
   static uint32_t lastInput = 0;
   static bool asleep = false, waking = false;
   bool any = in.x != 0 || in.y != 0 || in.aHeld || digitalRead(25) == LOW;
-  if (any || (mode == APP && menu == 2)) lastInput = now;
+  if (any || (mode == APP && menu == 2) || capturing()) lastInput = now;
   if (asleep) {
     if (!any) return;
     asleep = false;
@@ -331,4 +334,5 @@ void loop() {
       oled.sendBuffer();
       break;
   }
+  captureFrame();  // stream whatever was just drawn, when recording
 }

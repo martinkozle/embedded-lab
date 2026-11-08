@@ -32,6 +32,13 @@ struct Input {
 };
 
 void osBegin();         // call once from setup()
+
+// Screen capture for GIFs (scripts/oled-capture.py). The host sends
+// "CAP <baud>" at 115200 baud; the board switches to that speed and streams
+// every frame until "END". Call serviceCapture() every loop and captureFrame() after a frame.
+void serviceCapture();
+void captureFrame();
+bool capturing();
 Input readInput();      // call once per frame
 void updateSound();     // call every loop()
 
