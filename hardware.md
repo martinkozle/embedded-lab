@@ -102,6 +102,7 @@ The rules:
 | Mechanical keyboard switch (MX-style, blue keycap) | 1 | 2 metal pins, a plain on/off switch | Pins connect when pressed; either way round. Does not sit in a breadboard (centre post); use female-to-male jumpers. Not wired now: the jumpers kept falling off. |
 | Push-button module (KY-004 style) | 1 | 3 pins: S, middle (+), − | Push button with an on-board resistor. Wired with the middle pin on 3V3, it reads LOW when pressed. |
 | Passive buzzer module (HW-508 / KY-006 style) | 1 | 3 pins: S, middle (unused), − | Passive piezo: needs a tone (PWM), plays any pitch. Driven straight from a GPIO. Full volume (50 % duty) is loud; ~3 % duty (8/255) is comfortable. |
+| Breadboard power module (MB102 style) | 1 | Plugs onto a breadboard's rails; barrel jack and USB in, 3.3 V / 5 V out | Sits on the left end of the left breadboard but is **not used**: everything runs from the ESP32's USB. Leave it switched off, so it never feeds those rails alongside the ESP32. |
 | Analog joystick module (KY-023 style) | 1 | 2× analog + 1 button (pins GND, +5V, VRX, VRY, SW) | Two 10 kΩ pots and a push switch to GND. Despite the label, power it from **3V3** so VRX/VRY stay within 0–3.3 V. SW needs a pull-up. |
 
 ## Current wiring
@@ -125,6 +126,11 @@ sits in the left board's outermost column (J) and the 3V3…D23 row in the right
 board's column A, so every pin has 4 free holes beside it. On a single
 breadboard the VIN…EN row has no free holes. Joystick and OLED confirmed 2026-11-07 with
 `projects/joystick-oled`.
+
+Photo of the whole build (2026-11-08): `docs/media/build.jpg`. The unused
+power module sits on the left end of the left board. The joystick is taped
+down to the breadboard because it doesn't seat firmly; a housing may replace
+the tape later.
 
 The joystick is mounted with its pins facing the ESP32, which puts both raw
 axes opposite to the screen's directions. Use `4095 - analogRead(...)` for X
