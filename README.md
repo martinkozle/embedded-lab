@@ -9,8 +9,6 @@ most of the code was written together with an AI coding agent
 The big one is **Martin OS**: a home station for the desk, with a clothes
 wear counter, seven small games and a folder of math demos.
 
-https://github.com/user-attachments/assets/57fbac8a-5644-4b75-b347-f76c22c51a07
-
 <p align="center">
   <img src="docs/media/wear.gif" width="512" alt="Wear counter: counting wears, then washing a whole group, which spins up and explodes into soap bubbles">
 </p>
@@ -57,6 +55,10 @@ code layout.
 <p align="center">
   <img src="docs/media/build.jpg" width="600" alt="The build: ESP32, OLED showing the Martin OS boot screen, thumb joystick, button and buzzer on a breadboard">
 </p>
+
+Playing it on the real board (the repo is open on the laptop behind it):
+
+https://github.com/user-attachments/assets/57fbac8a-5644-4b75-b347-f76c22c51a07
 
 | Part | Pins |
 |---|---|
